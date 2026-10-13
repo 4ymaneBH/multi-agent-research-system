@@ -101,3 +101,7 @@ ruff check src/deep_research_from_scratch/research_agent.py
 - **I001**: Organize imports properly (standard library → third party → local imports)
 - **F401**: Remove unused imports
 - **D415**: Add periods to docstring summaries
+
+## Scope of the personal PDF extension
+
+The notebook regeneration instructions above apply to the original `deep_research_from_scratch` tutorial. The added `src/pdf_research/` package is maintained directly as Python modules, with tests in `tests/` and PDF dossiers in `fixtures/cases/`. Do not move this extension into notebooks or regenerate it from notebooks.

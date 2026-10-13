@@ -202,3 +202,30 @@ This repo contains 5 tutorial notebooks that build a deep research system from s
 - **Protocol Integration**: MCP servers and tool ecosystems
 
 Each notebook builds on the previous concepts, culminating in a production-ready deep research system that can handle complex, multi-faceted research queries with intelligent scoping and coordinated execution. 
+
+---
+
+## Personal extension: evidence research in PDFs
+
+The original [LangGraph tutorial](https://github.com/langchain-ai/deep_research_from_scratch), notebooks, agent source, and configuration remain in this repository. The new `src/pdf_research/` package is a separate, local Python application. Its implementation and tests live in folders, not notebooks. The original project remains attributed under its MIT license.
+
+The PDF tool searches text extracted from each page and reports the file, page number, and passage. Each Pydantic result contains an `affirmation`, `source`, `extrait`, and `statut`, plus all supporting or conflicting passages. Statuses are `etayee`, `contredite`, `contradictoire`, `preuve_absente`, and `a_verifier`. These are conservative text matches, not a semantic or legal determination. Scanned PDFs require OCR before they can be searched.
+
+### Try a dossier
+
+Install the project with `uv sync --extra dev`, then run:
+
+```bash
+uv run pdf-research search fixtures/cases/04_contradictoire "Project Atlas04 will use PostgreSQL."
+uv run pdf-research run fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 2 --max-loops 2
+uv run pdf-research show runs/atlas04.json
+uv run pdf-research resume fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 4
+uv run pdf-research review runs/atlas04.json --reviewer "Your Name"
+uv run pdf-research export runs/atlas04.json --output exports/atlas04.json
+```
+
+`run` saves a checkpoint after each search step. An interrupted job can be resumed from the same state file; a reserved but interrupted tool call still counts against the budget. Raise `--max-calls` when resuming if the original budget was exhausted. The maximum search loops per claim is fixed when the checkpoint is created. `review` requires an interactive terminal and an explicit confirmation for every result. Export is blocked until that review is recorded.
+
+Each folder in `fixtures/cases/` contains a `case.json` with claims and a synthetic PDF. The 20 dossiers include corroboration, absent evidence, direct contradictions, and mixed evidence. Run the integration suite with `uv run pytest -q`.
+
+**CV summary:** Extended an open source LangGraph research tutorial with page cited PDF search, validated evidence reports, bounded tool use, resumable checkpoints, a human export gate, and 20 reproducible test dossiers.
