@@ -4,3 +4,9 @@ __pycache__
 .langgraph_api/
 deep_research_from_scratch.egg-info/
 *.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+runs/
+exports/
+.uv-cache/
