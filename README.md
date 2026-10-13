@@ -1,49 +1,47 @@
-# Deep Research with PDF Evidence
+# Multi-Agent Research System
 
-This is my independent extension of [LangChain's Deep Research From Scratch tutorial](https://github.com/langchain-ai/deep_research_from_scratch). I kept its LangGraph agents, notebooks, configuration, and original documentation, then added a Python package for researching claims against local PDF dossiers. The new feature is implemented in folders rather than notebooks.
+A LangGraph research project that scopes an open-ended question, coordinates parallel researcher agents, and synthesizes their findings into a final report. It also includes a separate PDF evidence workflow for checking claims against local documents with page citations and human review.
 
-## My PDF research layer
+This repository builds on [LangChain's Deep Research From Scratch tutorial](https://github.com/langchain-ai/deep_research_from_scratch). Its original LangGraph code, notebooks, configuration, and documentation are preserved below; the PDF evidence package is my addition.
 
-- **Page-cited search:** extracts text from PDFs and returns the file, page number, and relevant passage for each hit.
-- **Validated evidence:** Pydantic models store each `affirmation`, `source`, `extrait`, and `statut`, together with supporting and conflicting passages.
-- **Bounded execution:** limits tool calls and search loops per claim so a dossier cannot search indefinitely.
-- **Resumable runs:** saves JSON checkpoints after search steps and verifies that the source PDFs have not changed before resuming.
-- **Human review before export:** requires an interactive review of every result before a JSON report can be exported.
-- **Reproducible evaluation:** includes 20 synthetic PDF dossiers covering supporting evidence, absent evidence, direct contradictions, and mixed evidence.
+## System overview
 
-| Directory | Purpose |
+The LangGraph workflow has three stages:
+
+1. **Scope:** clarify the user's request and turn it into a structured research brief.
+2. **Research:** a supervisor delegates independent topics to researcher agents, which use search tools and can run concurrently. The repository also includes an MCP-enabled research agent.
+3. **Write:** aggregate research notes and generate a final report from the brief and findings.
+
+The companion PDF workflow searches local dossiers, records exact pages and excerpts, assesses each claim with Pydantic models, and requires human review before exporting a JSON report. It is a separate CLI application; it is not currently connected as a tool in the LangGraph agent graph.
+
+| Location | Role |
 | --- | --- |
-| `src/deep_research_from_scratch/` | Original LangGraph agents and supporting code |
+| `langgraph.json` | Exposes the scoping, researcher, MCP, supervisor, and full research graphs |
+| `src/deep_research_from_scratch/` | Original LangGraph agents, state, prompts, and report generation |
 | `notebooks/` | Original tutorial notebooks, retained as reference |
-| `src/pdf_research/pdf/` | Page-aware PDF extraction and passage search |
-| `src/pdf_research/research/` | Evidence assessment and bounded research loop |
-| `src/pdf_research/storage/` | Atomic, resumable JSON checkpoints |
-| `src/pdf_research/cli.py` | Search, run, resume, review, and export commands |
+| `src/pdf_research/` | PDF page search, structured evidence, bounded execution, checkpoints, and CLI |
 | `fixtures/cases/` and `tests/` | 20 PDF dossiers and automated tests |
 
-## Run a PDF dossier
+## PDF evidence workflow
 
-Install [uv](https://docs.astral.sh/uv/), then run these commands from the repository root:
+The PDF tool extracts text page by page and returns a source file, page number, and passage. Pydantic results contain `affirmation`, `source`, `extrait`, and `statut`, with additional supporting or conflicting passages. Tool calls and search loops are capped. JSON checkpoints allow a run to resume after interruption and reject changed source PDFs. Export requires an interactive review of every result.
 
 ```bash
 uv sync --extra dev
 uv run pdf-research search fixtures/cases/04_contradictoire "Project Atlas04 will use SQLite."
 uv run pdf-research run fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 1 --max-loops 2
-uv run pdf-research show runs/atlas04.json
 uv run pdf-research resume fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 2
 uv run pdf-research review runs/atlas04.json --reviewer "Your Name"
 uv run pdf-research export runs/atlas04.json --output exports/atlas04.json
 ```
 
-The first `run` stops when its one-call budget is exhausted; `resume` raises the total budget to two calls and completes the claim. The loop limit is set when the checkpoint is created. An interrupted call is reserved in the checkpoint and still counts against the budget. `review` requires an interactive terminal and explicit acceptance of each result; `export` refuses an unreviewed dossier.
+The first `run` exhausts its one-call budget; `resume` raises the total budget to two calls and completes the claim. A reserved but interrupted call still counts against the budget. Results can be `etayee` (supported), `contredite` (contradicted), `contradictoire` (both), `preuve_absente` (no relevant passage), or `a_verifier` (inconclusive). Matching is lexical and conservative; scanned PDFs need OCR, and evidence statuses require human judgment.
 
-Results use the statuses `etayee` (supported), `contredite` (contradicted), `contradictoire` (both), `preuve_absente` (no relevant passage), and `a_verifier` (inconclusive). The matching is conservative and lexical; a status is a prompt for human review, not a definitive factual judgment. Scanned PDFs need OCR before this tool can search their text.
+The 20 synthetic dossiers cover supporting evidence, absent evidence, and contradictions. Run their tests with `uv run pytest -q`.
 
-Run the checks with `uv run pytest -q` and `uv run ruff check src/pdf_research tests scripts`.
+## Original tutorial and attribution
 
-## Original tutorial
-
-The original project and its documentation follow below. Its code and notebooks remain available under the existing [MIT license](LICENSE); the new PDF layer is my contribution.
+The original tutorial follows in full. Its source remains under the existing [MIT license](LICENSE).
 
 ---
 
