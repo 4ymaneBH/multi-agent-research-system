@@ -216,10 +216,10 @@ The PDF tool searches text extracted from each page and reports the file, page n
 Install the project with `uv sync --extra dev`, then run:
 
 ```bash
-uv run pdf-research search fixtures/cases/04_contradictoire "Project Atlas04 will use PostgreSQL."
-uv run pdf-research run fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 2 --max-loops 2
+uv run pdf-research search fixtures/cases/04_contradictoire "Project Atlas04 will use SQLite."
+uv run pdf-research run fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 1 --max-loops 2
 uv run pdf-research show runs/atlas04.json
-uv run pdf-research resume fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 4
+uv run pdf-research resume fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 2
 uv run pdf-research review runs/atlas04.json --reviewer "Your Name"
 uv run pdf-research export runs/atlas04.json --output exports/atlas04.json
 ```
