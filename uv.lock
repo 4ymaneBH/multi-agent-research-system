@@ -1556,6 +1556,54 @@ wheels = [
 ]
 
 [[package]]
+name = "multi-agent-research-system"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "ipykernel" },
+    { name = "jupyter" },
+    { name = "langchain" },
+    { name = "langchain-anthropic" },
+    { name = "langchain-community" },
+    { name = "langchain-mcp-adapters" },
+    { name = "langchain-openai" },
+    { name = "langchain-tavily" },
+    { name = "langgraph" },
+    { name = "pydantic" },
+    { name = "pypdf" },
+    { name = "rich" },
+    { name = "tavily-python" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "ipykernel", specifier = ">=6.20.0" },
+    { name = "jupyter", specifier = ">=1.0.0" },
+    { name = "langchain", specifier = ">=1.0.0" },
+    { name = "langchain-anthropic", specifier = ">=1.0.0" },
+    { name = "langchain-community", specifier = ">=0.4" },
+    { name = "langchain-mcp-adapters", specifier = ">=0.1.11" },
+    { name = "langchain-openai", specifier = ">=1.0.0" },
+    { name = "langchain-tavily", specifier = ">=0.2.12" },
+    { name = "langgraph", specifier = ">=1.0.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11.1" },
+    { name = "pydantic", specifier = ">=2.0.0" },
+    { name = "pypdf", specifier = ">=5,<7" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
+    { name = "rich", specifier = ">=14.0.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.1" },
+    { name = "tavily-python", specifier = ">=0.5.0" },
+]
+provides-extras = ["dev"]
+
+[[package]]
 name = "multidict"
 version = "6.6.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1964,54 +2012,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/ca/bc/f35b8446f4531a7cb
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl", hash = "sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08", size = 31191, upload-time = "2023-12-10T22:30:43.14Z" },
 ]
-
-[[package]]
-name = "personal-pdf-research"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "ipykernel" },
-    { name = "jupyter" },
-    { name = "langchain" },
-    { name = "langchain-anthropic" },
-    { name = "langchain-community" },
-    { name = "langchain-mcp-adapters" },
-    { name = "langchain-openai" },
-    { name = "langchain-tavily" },
-    { name = "langgraph" },
-    { name = "pydantic" },
-    { name = "pypdf" },
-    { name = "rich" },
-    { name = "tavily-python" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "ipykernel", specifier = ">=6.20.0" },
-    { name = "jupyter", specifier = ">=1.0.0" },
-    { name = "langchain", specifier = ">=1.0.0" },
-    { name = "langchain-anthropic", specifier = ">=1.0.0" },
-    { name = "langchain-community", specifier = ">=0.4" },
-    { name = "langchain-mcp-adapters", specifier = ">=0.1.11" },
-    { name = "langchain-openai", specifier = ">=1.0.0" },
-    { name = "langchain-tavily", specifier = ">=0.2.12" },
-    { name = "langgraph", specifier = ">=1.0.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11.1" },
-    { name = "pydantic", specifier = ">=2.0.0" },
-    { name = "pypdf", specifier = ">=5,<7" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
-    { name = "rich", specifier = ">=14.0.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.1" },
-    { name = "tavily-python", specifier = ">=0.5.0" },
-]
-provides-extras = ["dev"]
 
 [[package]]
 name = "pexpect"
