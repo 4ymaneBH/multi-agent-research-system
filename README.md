@@ -1,3 +1,52 @@
+# Deep Research with PDF Evidence
+
+This is my independent extension of [LangChain's Deep Research From Scratch tutorial](https://github.com/langchain-ai/deep_research_from_scratch). I kept its LangGraph agents, notebooks, configuration, and original documentation, then added a Python package for researching claims against local PDF dossiers. The new feature is implemented in folders rather than notebooks.
+
+## My PDF research layer
+
+- **Page-cited search:** extracts text from PDFs and returns the file, page number, and relevant passage for each hit.
+- **Validated evidence:** Pydantic models store each `affirmation`, `source`, `extrait`, and `statut`, together with supporting and conflicting passages.
+- **Bounded execution:** limits tool calls and search loops per claim so a dossier cannot search indefinitely.
+- **Resumable runs:** saves JSON checkpoints after search steps and verifies that the source PDFs have not changed before resuming.
+- **Human review before export:** requires an interactive review of every result before a JSON report can be exported.
+- **Reproducible evaluation:** includes 20 synthetic PDF dossiers covering supporting evidence, absent evidence, direct contradictions, and mixed evidence.
+
+| Directory | Purpose |
+| --- | --- |
+| `src/deep_research_from_scratch/` | Original LangGraph agents and supporting code |
+| `notebooks/` | Original tutorial notebooks, retained as reference |
+| `src/pdf_research/pdf/` | Page-aware PDF extraction and passage search |
+| `src/pdf_research/research/` | Evidence assessment and bounded research loop |
+| `src/pdf_research/storage/` | Atomic, resumable JSON checkpoints |
+| `src/pdf_research/cli.py` | Search, run, resume, review, and export commands |
+| `fixtures/cases/` and `tests/` | 20 PDF dossiers and automated tests |
+
+## Run a PDF dossier
+
+Install [uv](https://docs.astral.sh/uv/), then run these commands from the repository root:
+
+```bash
+uv sync --extra dev
+uv run pdf-research search fixtures/cases/04_contradictoire "Project Atlas04 will use SQLite."
+uv run pdf-research run fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 1 --max-loops 2
+uv run pdf-research show runs/atlas04.json
+uv run pdf-research resume fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 2
+uv run pdf-research review runs/atlas04.json --reviewer "Your Name"
+uv run pdf-research export runs/atlas04.json --output exports/atlas04.json
+```
+
+The first `run` stops when its one-call budget is exhausted; `resume` raises the total budget to two calls and completes the claim. The loop limit is set when the checkpoint is created. An interrupted call is reserved in the checkpoint and still counts against the budget. `review` requires an interactive terminal and explicit acceptance of each result; `export` refuses an unreviewed dossier.
+
+Results use the statuses `etayee` (supported), `contredite` (contradicted), `contradictoire` (both), `preuve_absente` (no relevant passage), and `a_verifier` (inconclusive). The matching is conservative and lexical; a status is a prompt for human review, not a definitive factual judgment. Scanned PDFs need OCR before this tool can search their text.
+
+Run the checks with `uv run pytest -q` and `uv run ruff check src/pdf_research tests scripts`.
+
+## Original tutorial
+
+The original project and its documentation follow below. Its code and notebooks remain available under the existing [MIT license](LICENSE); the new PDF layer is my contribution.
+
+---
+
 # 🧱 Deep Research From Scratch 
 
 Deep research has broken out as one of the most popular agent applications. [OpenAI](https://openai.com/index/introducing-deep-research/), [Anthropic](https://www.anthropic.com/engineering/built-multi-agent-research-system), [Perplexity](https://www.perplexity.ai/hub/blog/introducing-perplexity-deep-research), and [Google](https://gemini.google/overview/deep-research/?hl=en) all have deep research products that produce comprehensive reports using [various sources](https://www.anthropic.com/news/research) of context. There are also many [open](https://huggingface.co/blog/open-deep-research) [source](https://github.com/google-gemini/gemini-fullstack-langgraph-quickstart) implementations. We built an [open deep researcher](https://github.com/langchain-ai/open_deep_research) that is simple and configurable, allowing users to bring their own models, search tools, and MCP servers. In this repo, we'll build a deep researcher from scratch! Here is a map of the major pieces that we will build:
@@ -202,30 +251,3 @@ This repo contains 5 tutorial notebooks that build a deep research system from s
 - **Protocol Integration**: MCP servers and tool ecosystems
 
 Each notebook builds on the previous concepts, culminating in a production-ready deep research system that can handle complex, multi-faceted research queries with intelligent scoping and coordinated execution. 
-
----
-
-## Personal extension: evidence research in PDFs
-
-The original [LangGraph tutorial](https://github.com/langchain-ai/deep_research_from_scratch), notebooks, agent source, and configuration remain in this repository. The new `src/pdf_research/` package is a separate, local Python application. Its implementation and tests live in folders, not notebooks. The original project remains attributed under its MIT license.
-
-The PDF tool searches text extracted from each page and reports the file, page number, and passage. Each Pydantic result contains an `affirmation`, `source`, `extrait`, and `statut`, plus all supporting or conflicting passages. Statuses are `etayee`, `contredite`, `contradictoire`, `preuve_absente`, and `a_verifier`. These are conservative text matches, not a semantic or legal determination. Scanned PDFs require OCR before they can be searched.
-
-### Try a dossier
-
-Install the project with `uv sync --extra dev`, then run:
-
-```bash
-uv run pdf-research search fixtures/cases/04_contradictoire "Project Atlas04 will use SQLite."
-uv run pdf-research run fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 1 --max-loops 2
-uv run pdf-research show runs/atlas04.json
-uv run pdf-research resume fixtures/cases/04_contradictoire --state runs/atlas04.json --max-calls 2
-uv run pdf-research review runs/atlas04.json --reviewer "Your Name"
-uv run pdf-research export runs/atlas04.json --output exports/atlas04.json
-```
-
-`run` saves a checkpoint after each search step. An interrupted job can be resumed from the same state file; a reserved but interrupted tool call still counts against the budget. Raise `--max-calls` when resuming if the original budget was exhausted. The maximum search loops per claim is fixed when the checkpoint is created. `review` requires an interactive terminal and an explicit confirmation for every result. Export is blocked until that review is recorded.
-
-Each folder in `fixtures/cases/` contains a `case.json` with claims and a synthetic PDF. The 20 dossiers include corroboration, absent evidence, direct contradictions, and mixed evidence. Run the integration suite with `uv run pytest -q`.
-
-**CV summary:** Extended an open source LangGraph research tutorial with page cited PDF search, validated evidence reports, bounded tool use, resumable checkpoints, a human export gate, and 20 reproducible test dossiers.
