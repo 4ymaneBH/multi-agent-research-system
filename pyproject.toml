@@ -1,7 +1,7 @@
 [project]
-name = "deep_research_from_scratch"
+name = "personal_pdf_research"
 version = "0.1.0"
-description = "Build a deep research agent from scratch"
+description = "Deep research tutorial with a personal PDF evidence research extension"
 requires-python = ">=3.11,<3.14"
 dependencies = [
 "langgraph>=1.0.0",
@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["mypy>=1.11.1", "ruff>=0.6.1"]
+dev = ["mypy>=1.11.1", "ruff>=0.6.1", "pytest>=8"]
 
 [project.scripts]
 pdf-research = "pdf_research.cli:main"
@@ -36,6 +36,7 @@ where = ["src"]
 "*" = ["py.typed"]
 
 [tool.ruff]
+line-length = 100
 lint.select = [
     "E",    # pycodestyle
     "F",    # pyflakes
@@ -55,6 +56,9 @@ lint.ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["D", "UP"]
+"scripts/*" = ["D"]
+"src/pdf_research/**" = ["D"]
+"src/pdf_research/cli.py" = ["D", "T201"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
